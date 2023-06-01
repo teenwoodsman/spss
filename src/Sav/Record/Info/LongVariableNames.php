@@ -25,10 +25,12 @@ class LongVariableNames extends Info
 
     public function write(Buffer $buffer)
     {
-        $data = '';
+        $tuples = [];
         foreach ($this->data as $key => $value) {
-            $data .= sprintf('%s=%s', $key, $value) . self::DELIMITER;
+            $tuples[] = sprintf('%s=%s', $key, $value);
         }
+        $data = implode(self::DELIMITER, $tuples);
+
         $this->dataCount = \strlen($data);
         parent::write($buffer);
         $buffer->writeString($data);

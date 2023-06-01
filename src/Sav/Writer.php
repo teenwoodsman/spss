@@ -118,13 +118,15 @@ class Writer
 
             if (empty($var->width)) {
                 throw new \InvalidArgumentException(sprintf('Invalid field width. Should be an integer number greater than zero.'));
+            } elseif ($var->width > 32767) {
+                throw new \InvalidArgumentException(sprintf('Invalid field width. Cannot be greater than 32767.'));
             }
 
             $variable = new Record\Variable();
 
             // TODO: refactory - keep 7 positions so we can add after that for 100 very long string segments
-            $variable->name  = 'V' . str_pad($idx + 1, 5, 0, STR_PAD_LEFT);
-            $variable->width = Variable::FORMAT_TYPE_A === $var->format ? $var->width : 0;
+            $variable->name  = mb_strtoupper(substr($var->name, 0, 7));
+            $variable->width = ($var->format === Variable::FORMAT_TYPE_A) ? $var->width : 0;
 
             $variable->label = $var->label;
             $variable->print = [

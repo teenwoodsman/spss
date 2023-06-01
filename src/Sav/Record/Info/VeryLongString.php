@@ -23,11 +23,11 @@ class VeryLongString extends Info
     public function write(Buffer $buffer)
     {
         if ($this->data) {
-            $data = [];
+            $tuples = [];
             foreach ($this->data as $key => $value) {
-                $data[] = sprintf('%s=%05d%c', $key, $value, 0);
+                $tuples[] = sprintf('%s=%05d', $key, $value, 0);
             }
-            $data = implode(self::DELIMITER, $data);
+            $data = implode(self::DELIMITER, $tuples);
             $this->dataCount = \strlen($data);
             parent::write($buffer);
             $buffer->writeString($data);
