@@ -44,6 +44,11 @@ class Writer
     protected $buffer;
 
     /**
+     * @var bool[]
+     */
+    protected  $varNamesMap = [];
+
+    /**
      * Writer constructor.
      *
      * @param array $data
@@ -69,6 +74,20 @@ class Writer
     public static function createInFile($data = [], $file)
     {
         return new self($data, Buffer::factory(fopen($file, 'wb+')));
+    }
+
+    private function variableName($inputName)
+    {
+        $base = mb_strtoupper(mb_substr($inputName, 0, 6));
+        for ($i = 0; $i < 100; $i++) {
+            $varName = "{$base}{$i}";
+            if (!(isset($this->varNamesMap[$varName]))) {
+                $this->varNamesMap[$varName] = true;
+                return $varName;
+            }
+        }
+
+        return $varName;
     }
 
     public function write($data)
@@ -105,10 +124,16 @@ class Writer
 
         /** @var Variable $var */
         // for ($idx = 0; $idx <= $variablesCount; $idx++) {
+        $usedNamesMap = [];
         foreach (array_values($data['variables']) as $idx => $var) {
             if (\is_array($var)) {
                 $var = new Variable($var);
             }
+
+            if (key_exists($var->name, $usedNamesMap)) {
+                throw new \InvalidArgumentException(sprintf('Variable name `%s` is duplicated.', $var->name));
+            }
+            $usedNamesMap[$var->name] = true;
 
             //if (! preg_match('/^[A-Za-z0-9_]+$/', $var->name)) {
             // UTF-8 and '.' characters could pass here
@@ -125,7 +150,7 @@ class Writer
             $variable = new Record\Variable();
 
             // TODO: refactory - keep 7 positions so we can add after that for 100 very long string segments
-            $variable->name  = mb_strtoupper(substr($var->name, 0, 7));
+            $variable->name  = $this->variableName($var->name);
             $variable->width = ($var->format === Variable::FORMAT_TYPE_A) ? $var->width : 0;
 
             $variable->label = $var->label;
