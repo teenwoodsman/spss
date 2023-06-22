@@ -78,8 +78,8 @@ class Writer
 
     private function variableName($inputName)
     {
-        $base = mb_strtoupper(mb_substr($inputName, 0, 6));
-        for ($i = 0; $i < 100; $i++) {
+        $base = mb_strtoupper(mb_substr($inputName, 0, 5));
+        for ($i = 0; $i < 1000; $i++) {
             $varName = "{$base}{$i}";
             if (!(isset($this->varNamesMap[$varName]))) {
                 $this->varNamesMap[$varName] = true;
